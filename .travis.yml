@@ -5,6 +5,7 @@ before_cache:
   du -sh $line;         DIR=$(dirname $HOME/CACHE$line); mkdir -p $DIR; cp -r $line
   $DIR; done
 - echo CACHESIZE $(du -sk $HOME/CACHE)
+- cp /tmp/classpathFile $HOME/CACHE/classpathFile
 before_install:
 - if [ "$TRAVIS_OS_NAME" == "osx" ];        then sed -i '' 's/<gib.enabled>true/<gib.enabled>false/'
   $TRAVIS_BUILD_DIR/pom.xml;        else sed -i 's/<gib.enabled>true/<gib.enabled>false/'
@@ -18,6 +19,8 @@ before_script:
 - if [ "$TRAVIS_OS_NAME" == "osx" ];    then sed -i '' 's/<gib.enabled>false/<gib.enabled>true/'
   $TRAVIS_BUILD_DIR/pom.xml;    else sed -i 's/<gib.enabled>false/<gib.enabled>true/'
   $TRAVIS_BUILD_DIR/pom.xml;    fi
+- if [[ -e $HOME/CACHE/classpathFile ]]; then cp $HOME/CACHE/classpathFile /tmp/;
+  fi
 cache:
   directories:
   - $HOME/CACHE
@@ -25,12 +28,10 @@ jdk:
 - oraclejdk8
 language: java
 script:
-- touch NOW
+- touch /tmp/NOW
 - echo GIBSTUDYSTART $(date)
 - mvn test -B
 - echo GIBSTUDYEND $(date)
 - cd $TRAVIS_BUILD_DIR
-- if [ "$TRAVIS_OS_NAME" == "osx" ];        then echo TESTNUM $(find . -name TEST-*.xml
-  -newer NOW | wc -l);        else echo TESTNUM $(find -name TEST-*.xml -newer NOW
-  | wc -l);        fi
+- echo TESTNUM $(find . -name TEST-*.xml -newer /tmp/NOW | wc -l)
 sudo: false
